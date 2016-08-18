@@ -3,6 +3,8 @@ import json
 from urllib import request
 
 import config
+from .errors import PrivateOrInvalidProfileError
+from .errors import UserIdNotFoundError
 
 import facebook
 from bs4 import BeautifulSoup
@@ -16,18 +18,23 @@ def search_facebook(query, search_type='user'):
 
 
 def _get_user_id_from_html(html):
-    soup = BeautifulSoup(html, 'html.parser')
-    data = soup.find(id="pagelet_timeline_main_column").get('data-gt')
-    data = json.loads(data)  # TODO regex {"profile_owner":"id_numer","ref":"timeline:timeline"}
-    return data['profile_owner']
+    try:
+        soup = BeautifulSoup(html, 'html.parser')
+        data = soup.find(id="pagelet_timeline_main_column").get('data-gt')
+        data = json.loads(data)  # TODO regex {"profile_owner":"id_numer","ref":"timeline:timeline"}
+        return data['profile_owner']
+    except:
+        raise UserIdNotFoundError()
 
 
 def get_user_id(user):
-    # TODO 404 private profile
     facebook_url = "http://www.facebook.com/"
-    html = request.urlopen(facebook_url + user)
-    user_id = _get_user_id_from_html(html.read())
-    return user_id
+    try:
+        html = request.urlopen(facebook_url + user)
+        user_id = _get_user_id_from_html(html.read())
+        return user_id
+    except request.HTTPError:
+        raise PrivateOrInvalidProfileError(user)
 
 
 def get_profile(user_id):
