@@ -1,5 +1,5 @@
 import os
-import json
+import re
 from urllib import request
 
 import config
@@ -17,8 +17,9 @@ def _get_user_id_from_html(html):
     try:
         soup = BeautifulSoup(html, 'html.parser')
         data = soup.find(id="pagelet_timeline_main_column").get('data-gt')
-        data = json.loads(data)  # TODO regex {"profile_owner":"id_numer","ref":"timeline:timeline"}
-        return data['profile_owner']
+        regex_profile_owner = re.compile(r'"profile_owner":"(\d+)"')
+        user_id = re.search(regex_profile_owner, data).group(1)
+        return user_id
     except:
         raise UserIdNotFoundError()
 
