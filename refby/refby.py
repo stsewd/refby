@@ -13,10 +13,6 @@ from bs4 import BeautifulSoup
 _graph = facebook.GraphAPI(config.access_token)
 
 
-def search_facebook(query, search_type='user'):
-    return _graph.get_object("search", q=query, type=search_type)
-
-
 def _get_user_id_from_html(html):
     try:
         soup = BeautifulSoup(html, 'html.parser')
