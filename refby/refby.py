@@ -15,14 +15,19 @@ def search_facebook(query, search_type='user'):
     return _graph.get_object("search", q=query, type=search_type)
 
 
+def _get_user_id_from_html(html):
+    soup = BeautifulSoup(html, 'html.parser')
+    data = soup.find(id="pagelet_timeline_main_column").get('data-gt')
+    data = json.loads(data)  # TODO regex {"profile_owner":"id_numer","ref":"timeline:timeline"}
+    return data['profile_owner']
+
+
 def get_user_id(user):
     # TODO 404 private profile
     facebook_url = "http://www.facebook.com/"
     html = request.urlopen(facebook_url + user)
-    soup = BeautifulSoup(html.read(), 'html.parser')
-    div = soup.find(id="pagelet_timeline_main_column")
-    data = json.loads(div.get('data-gt'))  # TODO regex
-    return data['profile_owner']
+    user_id = _get_user_id_from_html(html.read())
+    return user_id
 
 
 def get_profile(user_id):
