@@ -14,10 +14,10 @@ _graph = facebook.GraphAPI(config.access_token)
 
 
 def _get_user_id_from_html(html):
+    regex_profile_owner = re.compile(r'"profile_owner":"(\d+)"')
     try:
         soup = BeautifulSoup(html, 'html.parser')
         data = soup.find(id="pagelet_timeline_main_column").get('data-gt')
-        regex_profile_owner = re.compile(r'"profile_owner":"(\d+)"')
         user_id = re.search(regex_profile_owner, data).group(1)
         return user_id
     except:
@@ -67,7 +67,11 @@ def _get_file_name(output, picture):
 def download_profile_picture(user_id, output):
     if os.path.exists(output):
         picture = get_profile_picture(user_id)
-        file_name = output if os.path.isfile(output) else _get_file_name(output, picture)
+        file_name = (
+            output
+            if os.path.isfile(output)
+            else _get_file_name(output, picture)
+        )
         _save_image_from_url(picture['url'], file_name)
     else:
-        raise Exception("Output directory doesn't exists: " + output)
+        raise OutputDirectoryError(output)
