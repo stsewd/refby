@@ -57,11 +57,13 @@ def _save_image_from_url(url, file_name):
         output.write(image.read())
 
 
-def _get_file_name(output, picture):
-    user_name = picture['user']['name']
-    user_id = picture['user']['id']
-    file_extension = ".jpg"
-    file_name = os.path.join(output, user_name + " (" + user_id + ")" + file_extension)
+def _get_file_name(output_dir, picture):
+    relative_name = "{user_name} ({user_id}).{extension}".format(
+        user_name=picture['user']['name'],
+        user_id=picture['user']['id'],
+        extension=".jpg"
+    )
+    file_name = os.path.join(output_dir, relative_name)
     return file_name
 
 
