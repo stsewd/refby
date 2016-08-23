@@ -5,6 +5,7 @@ from urllib import request
 import config
 from .errors import PrivateOrInvalidProfileError
 from .errors import UserIdNotFoundError
+from .errors import OutputDirectoryError
 
 import facebook
 from bs4 import BeautifulSoup
@@ -41,19 +42,19 @@ def get_profile(user_id):
 
 def get_profile_picture(user_id):
     profile = get_profile(user_id)
-    picture = _graph.get_connections(profile['id'], 'picture', type='large', fileld={'url'})
+    picture = _graph.get_connections(
+        profile['id'],
+        'picture',
+        type='large',
+        fileld={'url'}
+    )
     picture['user'] = profile
     return picture
 
 
-def _save_to_file(image, file_name):
-    with open(file_name, 'wb') as output:
-        output.write(image.read())
-
-
 def _save_image_from_url(url, file_name):
-    with request.urlopen(url) as image:
-        _save_to_file(image, file_name)
+    with request.urlopen(url) as image, open(file_name, 'wb') as output:
+        output.write(image.read())
 
 
 def _get_file_name(output, picture):
